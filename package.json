@@ -13,11 +13,18 @@
     "url": "https://github.com/mlipscombe/postgraphile-plugin-fulltext-filter.git"
   },
   "scripts": {
-    "test": "scripts/test jest -i",
-    "lint": "eslint index.js src/**/*.js"
+    "build": "tsc -p tsconfig.build.json",
+    "watch": "yarn build --watch",
+    "format": "prettier --ignore-path ./.eslintignore",
+    "format:all": "yarn format '**/*.{json,md,html,js,jsx,ts,tsx}'",
+    "format:fix": "yarn format:all --write",
+    "format:check": "yarn format:all --list-different",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "prepack": "rm -Rf dist && npm run build",
+    "test": "jest -i",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "graphile-build-pg": "^4.13.0",
     "pg-tsquery": "^8.4.1",
     "postgraphile-plugin-connection-filter": "^3.0.0-beta.1"
   },
@@ -25,6 +32,10 @@
     "postgraphile-core": "^4.13.0"
   },
   "devDependencies": {
+    "graphile-build": "^4.13.0",
+    "graphile-build-pg": "^4.13.0",
+    "@tsconfig/node16": "^16.1.1",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
     "eslint": "^8.56.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.29.1",
@@ -32,7 +43,8 @@
     "jest": "^29.7.0",
     "jest-junit": "^16.0.0",
     "pg": "^8.11.3",
-    "postgraphile-core": "^4.13.0"
+    "postgraphile-core": "^4.13.0",
+    "typescript": "^5.3.3"
   },
   "jest": {
     "testRegex": "__tests__/.*\\.test\\.js$",
@@ -42,7 +54,7 @@
     ]
   },
   "files": [
-    "src"
+    "dist"
   ],
   "eslintConfig": {
     "parserOptions": {
