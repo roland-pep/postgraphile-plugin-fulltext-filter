@@ -2,7 +2,7 @@
   "name": "@innellea/postgraphile-plugin-fulltext-filter",
   "version": "2.0.1",
   "description": "Full text searching on tsvector fields for use with postgraphile-plugin-connection-filter",
-  "main": "index.ts",
+  "main": "dist/PostgraphileFullTextFilterPlugin.js",
   "repository": {
     "url": "git+https://github.com/roland-pep/postgraphile-plugin-fulltext-filter.git",
     "type": "git"
