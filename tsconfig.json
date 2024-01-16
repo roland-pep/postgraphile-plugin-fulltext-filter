@@ -1,0 +1,21 @@
+// This file is used for the entire project, including tests - see tsconfig.build.js for just the output
+{
+  "extends": "@tsconfig/node16/tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "allowJs": false,
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "importHelpers": true,
+    "experimentalDecorators": true,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedParameters": false,
+    "noUnusedLocals": false,
+    "preserveWatchOutput": true,
+    "lib": ["es2018", "esnext.asynciterable"]
+  },
+  "exclude": ["contrib"]
+}
