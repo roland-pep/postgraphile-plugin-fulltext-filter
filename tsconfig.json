@@ -5,7 +5,7 @@
     "noEmit": true,
     "allowJs": false,
     "target": "ESNext",
-    "module": "NodeNext",
+    "module": "nodenext",
     "moduleResolution": "NodeNext",
     "importHelpers": true,
     "experimentalDecorators": true,
