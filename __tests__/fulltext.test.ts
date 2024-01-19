@@ -1,8 +1,8 @@
-const { graphql } = require('graphql');
-const { withSchema } = require('./helpers');
+import { graphql } from "graphql";
+import { withSchema } from "./helpers";
 
 test(
-  'table with unfiltered full-text field works',
+  "table with unfiltered full-text field works",
   withSchema({
     setup: `
       create table fulltext_test.job (
@@ -28,13 +28,13 @@ test(
       expect(schema).toMatchSnapshot();
 
       const result = await graphql(schema, query, null, { pgClient });
-      expect(result).not.toHaveProperty('errors');
+      expect(result).not.toHaveProperty("errors");
     },
-  }),
+  })
 );
 
 test(
-  'fulltext search field is created',
+  "fulltext search field is created",
   withSchema({
     setup: `
       create table fulltext_test.job (
@@ -70,11 +70,11 @@ test(
       expect(schema).toMatchSnapshot();
 
       const result = await graphql(schema, query, null, { pgClient });
-      expect(result).not.toHaveProperty('errors');
+      expect(result).not.toHaveProperty("errors");
 
       const data = result.data.allJobs.nodes;
       expect(data).toHaveLength(2);
-      data.map(n => expect(n.fullTextRank).not.toBeNull());
+      data.map((n) => expect(n.fullTextRank).not.toBeNull());
 
       const bananaQuery = `
         query {
@@ -93,18 +93,20 @@ test(
           }
         }
       `;
-      const bananaResult = await graphql(schema, bananaQuery, null, { pgClient });
-      expect(bananaResult).not.toHaveProperty('errors');
+      const bananaResult = await graphql(schema, bananaQuery, null, {
+        pgClient,
+      });
+      expect(bananaResult).not.toHaveProperty("errors");
 
       const bananaData = bananaResult.data.allJobs.nodes;
       expect(bananaData).toHaveLength(1);
-      bananaData.map(n => expect(n.fullTextRank).not.toBeNull());
+      bananaData.map((n) => expect(n.fullTextRank).not.toBeNull());
     },
-  }),
+  })
 );
 
 test(
-  'querying rank without filter works',
+  "querying rank without filter works",
   withSchema({
     setup: `
       create table fulltext_test.job (
@@ -131,17 +133,17 @@ test(
       expect(schema).toMatchSnapshot();
 
       const result = await graphql(schema, query, null, { pgClient });
-      expect(result).not.toHaveProperty('errors');
+      expect(result).not.toHaveProperty("errors");
 
       const data = result.data.allJobs.nodes;
       expect(data).toHaveLength(2);
-      data.map(n => expect(n.fullTextRank).toBeNull());
+      data.map((n) => expect(n.fullTextRank).toBeNull());
     },
-  }),
+  })
 );
 
 test(
-  'fulltext search field is created',
+  "fulltext search field is created",
   withSchema({
     setup: `
       create table fulltext_test.job (
@@ -183,12 +185,12 @@ test(
       expect(schema).toMatchSnapshot();
 
       const result = await graphql(schema, query, null, { pgClient });
-      expect(result).not.toHaveProperty('errors');
+      expect(result).not.toHaveProperty("errors");
 
       const data = result.data.allJobs.nodes;
       expect(data).toHaveLength(2);
-      data.map(n => expect(n.fullTextRank).not.toBeNull());
-      data.map(n => expect(n.otherFullTextRank).not.toBeNull());
+      data.map((n) => expect(n.fullTextRank).not.toBeNull());
+      data.map((n) => expect(n.otherFullTextRank).not.toBeNull());
 
       const potatoQuery = `
         query {
@@ -208,19 +210,21 @@ test(
           }
         }
       `;
-      const potatoResult = await graphql(schema, potatoQuery, null, { pgClient });
-      expect(potatoResult).not.toHaveProperty('errors');
+      const potatoResult = await graphql(schema, potatoQuery, null, {
+        pgClient,
+      });
+      expect(potatoResult).not.toHaveProperty("errors");
 
       const potatoData = potatoResult.data.allJobs.nodes;
       expect(potatoData).toHaveLength(1);
-      potatoData.map(n => expect(n.fullTextRank).toBeNull());
-      potatoData.map(n => expect(n.otherFullTextRank).not.toBeNull());
+      potatoData.map((n) => expect(n.fullTextRank).toBeNull());
+      potatoData.map((n) => expect(n.otherFullTextRank).not.toBeNull());
     },
-  }),
+  })
 );
 
 test(
-  'sort by full text rank field works',
+  "sort by full text rank field works",
   withSchema({
     setup: `
       create table fulltext_test.job (
@@ -253,19 +257,31 @@ test(
       `;
       expect(schema).toMatchSnapshot();
 
-      const ascResult = await graphql(schema, query, null, { pgClient }, { orderBy: ['FULL_TEXT_ASC'] });
-      expect(ascResult).not.toHaveProperty('errors');
+      const ascResult = await graphql(
+        schema,
+        query,
+        null,
+        { pgClient },
+        { orderBy: ["FULL_TEXT_ASC"] }
+      );
+      expect(ascResult).not.toHaveProperty("errors");
 
-      const descResult = await graphql(schema, query, null, { pgClient }, { orderBy: ['FULL_TEXT_DESC'] });
-      expect(descResult).not.toHaveProperty('errors');
+      const descResult = await graphql(
+        schema,
+        query,
+        null,
+        { pgClient },
+        { orderBy: ["FULL_TEXT_DESC"] }
+      );
+      expect(descResult).not.toHaveProperty("errors");
 
       expect(ascResult).not.toEqual(descResult);
     },
-  }),
+  })
 );
 
 test(
-  'works with connectionFilterRelations',
+  "works with connectionFilterRelations",
   withSchema({
     options: {
       graphileBuildOptions: {
@@ -321,14 +337,14 @@ test(
       expect(schema).toMatchSnapshot();
 
       const result = await graphql(schema, query, null, { pgClient });
-      expect(result).not.toHaveProperty('errors');
+      expect(result).not.toHaveProperty("errors");
       expect(result.data.allOrders.nodes).toHaveLength(2);
     },
-  }),
+  })
 );
 
 test(
-  'works with connectionFilterRelations with no local filter',
+  "works with connectionFilterRelations with no local filter",
   withSchema({
     options: {
       graphileBuildOptions: {
@@ -383,8 +399,8 @@ test(
       expect(schema).toMatchSnapshot();
 
       const result = await graphql(schema, query, null, { pgClient });
-      expect(result).not.toHaveProperty('errors');
+      expect(result).not.toHaveProperty("errors");
       expect(result.data.allOrders.nodes).toHaveLength(3);
     },
-  }),
+  })
 );
