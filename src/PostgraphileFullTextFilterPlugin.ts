@@ -95,7 +95,9 @@ const PostGraphileFulltextFilterPlugin: Plugin = (builder) => {
       () => GraphQLString,
       (identifier, val, input, fieldName, queryBuilder) => {
         const processedInput = `${tsquery.parse(input) || ""}`;
-        const tsQuery = sql.query`plainto_tsquery(${sql.value(processedInput)})`;
+        const tsQuery = sql.query`plainto_tsquery('english', ${sql.value(
+          processedInput
+        )})`;
         queryBuilder.__fts_ranks = queryBuilder.__fts_ranks || {};
         queryBuilder.__fts_ranks[fieldName] = [identifier, tsQuery];
         return sql.query`${identifier} @@ ${tsQuery}`;

@@ -1,6 +1,6 @@
 {
   "name": "@innellea/postgraphile-plugin-fulltext-filter",
-  "version": "2.0.46",
+  "version": "2.0.47",
   "description": "Full text searching on tsvector fields for use with postgraphile-plugin-connection-filter",
   "main": "dist/PostgraphileFullTextFilterPlugin.js",
   "repository": {
