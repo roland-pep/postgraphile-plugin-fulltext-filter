@@ -94,12 +94,11 @@ const PostGraphileFulltextFilterPlugin: Plugin = (builder) => {
       "Performs a full text search on the field.",
       () => GraphQLString,
       (identifier, val, input, fieldName, queryBuilder) => {
-        const tsQueryString = `${tsquery.parse(input) || ""}`;
+        const processedInput = `${tsquery.parse(input) || ""}`;
+        const tsQuery = sql.query`plainto_tsquery(${sql.value(processedInput)})`;
         queryBuilder.__fts_ranks = queryBuilder.__fts_ranks || {};
-        queryBuilder.__fts_ranks[fieldName] = [identifier, tsQueryString];
-        return sql.query`${identifier} @@ to_tsquery(${sql.value(
-          tsQueryString
-        )})`;
+        queryBuilder.__fts_ranks[fieldName] = [identifier, tsQuery];
+        return sql.query`${identifier} @@ ${tsQuery}`;
       },
       {
         allowedFieldTypes: [InputType.name],
