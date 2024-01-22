@@ -1,9 +1,7 @@
-const { Tsquery } = require("pg-tsquery");
 
 import type { Build, Inflection, Plugin } from "graphile-build";
 import { omit } from "graphile-build-pg";
 
-const tsquery = new Tsquery();
 const PostGraphileFulltextFilterPlugin: Plugin = (builder) => {
   builder.hook("inflection", (inflection: Inflection, build: Build) =>
     build.extend(inflection, {
@@ -16,17 +14,17 @@ const PostGraphileFulltextFilterPlugin: Plugin = (builder) => {
       pgTsvOrderByColumnRankEnum(
         table: any,
         attr: any,
-        ascending: boolean
+        ascending: boolean,
       ): string {
         const columnName =
           attr.kind === "procedure"
             ? attr.name.substr(table.name.length + 1)
             : this._columnName(attr, { skipRowId: true });
         return this.constantCase(
-          `${columnName}_rank_${ascending ? "asc" : "desc"}`
+          `${columnName}_rank_${ascending ? "asc" : "desc"}`,
         );
       },
-    })
+    }),
   );
 
   builder.hook("build", (build) => {
@@ -39,7 +37,7 @@ const PostGraphileFulltextFilterPlugin: Plugin = (builder) => {
     } = build;
 
     const tsvectorType = introspectionResultsByKind.type.find(
-      (t: { name: string }) => t.name === "tsvector"
+      (t: { name: string }) => t.name === "tsvector",
     );
     if (!tsvectorType) {
       throw new Error("Unable to find tsvector type through introspection.");
@@ -83,7 +81,7 @@ const PostGraphileFulltextFilterPlugin: Plugin = (builder) => {
 
     if (!(addConnectionFilterOperator instanceof Function)) {
       throw new Error(
-        "PostGraphileFulltextFilterPlugin requires PostGraphileConnectionFilterPlugin to be loaded before it."
+        "PostGraphileFulltextFilterPlugin requires PostGraphileConnectionFilterPlugin to be loaded before it.",
       );
     }
 
@@ -94,22 +92,21 @@ const PostGraphileFulltextFilterPlugin: Plugin = (builder) => {
       "Performs a full text search on the field.",
       () => GraphQLString,
       (identifier, val, input, fieldName, queryBuilder) => {
-        const processedInput = `${tsquery.parse(input) || ""}`;
-        const tsQuery = sql.query`plainto_tsquery('english', ${sql.value(
-          processedInput
-        )})`;
+        // Trim the input, replace spaces with "&", and trim any trailing "&"
+        const processedInput = input.trim().replace(/\s+/g, " & ").replace(/&\s*$/, "");
+        const tsQuery = sql.query`plainto_tsquery('english', ${sql.value(processedInput)})`;
         queryBuilder.__fts_ranks = queryBuilder.__fts_ranks || {};
-        queryBuilder.__fts_ranks[fieldName] = [identifier, tsQuery];
+        queryBuilder.__fts_ranks[fieldName] = [identifier, processedInput];
         return sql.query`${identifier} @@ ${tsQuery}`;
       },
       {
         allowedFieldTypes: [InputType.name],
       }
     );
-
+    
     return build;
-  });
-
+    });
+    
   builder.hook("GraphQLObjectType:fields", (fields, build, context) => {
     const {
       pgIntrospectionResultsByKind: introspectionResultsByKind,
@@ -139,7 +136,7 @@ const PostGraphileFulltextFilterPlugin: Plugin = (builder) => {
       (type: { type: string; namespaceId: any; classId: any }) =>
         type.type === "c" &&
         type.namespaceId === table.namespaceId &&
-        type.classId === table.id
+        type.classId === table.id,
     )[0];
     if (!tableType) {
       throw new Error("Could not determine the type of this table.");
@@ -180,10 +177,8 @@ const PostGraphileFulltextFilterPlugin: Plugin = (builder) => {
               const [identifier, tsQueryString] =
                 parentQueryBuilder.__fts_ranks[baseFieldName];
               queryBuilder.select(
-                sql.fragment`ts_rank(${identifier}, to_tsquery(${sql.value(
-                  tsQueryString
-                )}))`,
-                alias
+                sql.fragment`ts_rank(${identifier}, ${tsQueryString})`,
+                alias,
               );
             },
           }));
@@ -195,7 +190,7 @@ const PostGraphileFulltextFilterPlugin: Plugin = (builder) => {
         },
         {
           isPgTSVRankField: true,
-        }
+        },
       );
 
     const tsvFields = tsvColumns.reduce((memo, attr) => {
@@ -211,7 +206,7 @@ const PostGraphileFulltextFilterPlugin: Plugin = (builder) => {
       const fieldName = inflection.computedColumn(
         psuedoColumnName,
         proc,
-        table
+        table,
       );
       const rankFieldName = inflection.pgTsvRank(fieldName);
       memo[rankFieldName] = newRankField(fieldName, rankFieldName); // eslint-disable-line no-param-reassign
@@ -244,7 +239,7 @@ const PostGraphileFulltextFilterPlugin: Plugin = (builder) => {
       (type) =>
         type.type === "c" &&
         type.namespaceId === table.namespaceId &&
-        type.classId === table.id
+        type.classId === table.id,
     )[0];
     if (!tableType) {
       throw new Error("Could not determine the type of this table.");
@@ -279,18 +274,18 @@ const PostGraphileFulltextFilterPlugin: Plugin = (builder) => {
               ? inflection.computedColumn(
                   attr.name.substr(table.name.length + 1),
                   attr,
-                  table
+                  table,
                 )
               : inflection.column(attr);
           const ascFieldName = inflection.pgTsvOrderByColumnRankEnum(
             table,
             attr,
-            true
+            true,
           );
           const descFieldName = inflection.pgTsvOrderByColumnRankEnum(
             table,
             attr,
-            false
+            false,
           );
 
           const findExpr = ({ queryBuilder }) => {
@@ -303,7 +298,7 @@ const PostGraphileFulltextFilterPlugin: Plugin = (builder) => {
             const [identifier, tsQueryString] =
               queryBuilder.__fts_ranks[fieldName];
             return sql.fragment`ts_rank(${identifier}, to_tsquery(${sql.value(
-              tsQueryString
+              tsQueryString,
             )}))`;
           };
 
@@ -324,7 +319,7 @@ const PostGraphileFulltextFilterPlugin: Plugin = (builder) => {
 
           return memo;
         }, {}),
-      `Adding TSV rank columns for sorting on table '${table.name}'`
+      `Adding TSV rank columns for sorting on table '${table.name}'`,
     );
   });
 };
